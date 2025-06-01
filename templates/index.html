@@ -61,14 +61,15 @@
                 </select>
             </div>
             <div class="col-sm-2">
-                <select class="form-select" name="order">
+                <label for="order">排序顺序：</label>
+                <select class="form-select" name="order" title="排序顺序">
                     <option value="desc" {% if order=='desc' %}selected{% endif %}>降序</option>
                     <option value="asc" {% if order=='asc' %}selected{% endif %}>升序</option>
                 </select>
             </div>
             <input type="hidden" name="page" value="{{ page }}">
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary">搜索</button>
+                <button type="submit" class="btn btn-primary w-50">搜索</button>
             </div>
         </form>
 
@@ -78,11 +79,10 @@
                 <div class="card h-100 shadow-sm">
                     <div class="card-body">
                         <div>
-                            <img async class="card-avatar w-100" src="{{ repo.owner.avatar_url}}" alt="avatar" />
-                            <h5 class="card-title">
-                                项目名：<a href="{{ repo.html_url }}" target="_blank" class="text-decoration-none">{{
-                                    repo.full_name }}</a>
-                            </h5>
+                            <a href="{{ repo.html_url }}" target="_blank" class="text-decoration-none">
+                                <img async class="card-avatar w-100" src="{{ repo.owner.avatar_url}}" alt="avatar" />
+                                <h5 class="card-title"> 项目全称：{{ repo.full_name }} </h5>
+                            </a>
                         </div>
                         <p class="card-text">⭐ {{ repo.stargazers_count }}点赞 | 🍴 {{ repo.forks_count }}复刻</p>
                         <p class="card-text text-muted small">编程语言：{{ repo.language }}</p>
@@ -114,7 +114,7 @@
                 <li class="page-item active">
                     <span class="page-link">第 {{ page }} 页</span>
                 </li>
-                {% if results|length >= 20 %}
+                {% if results|length >= 30 %}
                 <li class="page-item">
                     <a class="page-link"
                         href="?q={{ query }}&language={{ language }}&sort={{ sort }}&order={{ order }}&page={{ page + 1 }}">下一页</a>

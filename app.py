@@ -29,7 +29,7 @@ def index():
         "q": full_query,
         "sort": sort,
         "order": order,
-        "per_page": 20,
+        "per_page": 30,
         "page": page
     }
 
@@ -40,14 +40,14 @@ def index():
     if GITHUB_TOKEN:
         headers["Authorization"] = f"token {GITHUB_TOKEN}"
 
-    # response = requests.get(GITHUB_API_URL, params=params, headers=headers)
-    # print("response status code:", response.status_code)
-    # print(f"response content size={len(response.text)}")
-    # data=response.json()
+    response = requests.get(GITHUB_API_URL, params=params, headers=headers)
+    print("response status code:", response.status_code)
+    print(f"response content size={len(response.text)}")
+    data=response.json()
 
-    # total_count=data.get("total_count",0)
-    # print(f"total_count repo={total_count}")
-    total_count=0#for test
+    total_count=data.get("total_count",0)
+    print(f"total_count repo={total_count}")
+    # total_count=0#for test
     if total_count>0:
         items =data.get("items", []) if response.status_code == 200 else []
     else:
@@ -63,7 +63,8 @@ def index():
         repo_data = repo.copy()
         # fetch_and_clean_readme(repo, repo_data)
         #处理描述过长问题，处理star数量
-        repo_data["description"]=repo_data["description"][:100]
+        if repo_data.get("description") is not None:
+            repo_data["description"]=repo_data.get("description")[:100]
         repo_data["stargazers_count"]=f"{repo_data['stargazers_count']:,}"
         repo_data["forks_count"]=f"{repo_data['forks_count']:,}"
         results.append(repo_data)
