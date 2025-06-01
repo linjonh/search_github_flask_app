@@ -40,14 +40,14 @@ def index():
     if GITHUB_TOKEN:
         headers["Authorization"] = f"token {GITHUB_TOKEN}"
 
-    response = requests.get(GITHUB_API_URL, params=params, headers=headers)
-    print("response status code:", response.status_code)
-    print(f"response content size={len(response.text)}")
-    data=response.json()
+    # response = requests.get(GITHUB_API_URL, params=params, headers=headers)
+    # print("response status code:", response.status_code)
+    # print(f"response content size={len(response.text)}")
+    # data=response.json()
 
-    total_count=data.get("total_count",0)
-    print(f"total_count repo={total_count}")
-    # total_count=0#for test
+    # total_count=data.get("total_count",0)
+    # print(f"total_count repo={total_count}")
+    total_count=0#for test
     if total_count>0:
         items =data.get("items", []) if response.status_code == 200 else []
     else:
@@ -61,30 +61,13 @@ def index():
     results = []
     for repo in items:
         repo_data = repo.copy()
-        try:
-            readme_url = README_URL_TEMPLATE.format(repo["full_name"])
-            readme_resp = requests.get(readme_url)
-            if readme_resp.status_code == 200:
-                raw = readme_resp.text[:1000]  # 只取前 1000 字节
-                html = markdown2.markdown(raw)
-                soup = BeautifulSoup(html, 'html.parser')
-
-                # 清理非法嵌套：移除 p 包裹的 a 或未闭合元素
-                for a in soup.find_all("a"):
-                    if a.find_parent("p"):
-                        a.unwrap()
-                clean_html = str(soup)
-                repo_data["readme"] = clean_html
-            else:
-                repo_data["readme"] = ""
-        except:
-            repo_data["readme"] = ""
+        # fetch_and_clean_readme(repo, repo_data)
         #处理描述过长问题，处理star数量
         repo_data["description"]=repo_data["description"][:100]
         repo_data["stargazers_count"]=f"{repo_data['stargazers_count']:,}"
         repo_data["forks_count"]=f"{repo_data['forks_count']:,}"
         results.append(repo_data)
-
+        print("Processed repo:", repo_data["full_name"])
     return render_template(
         "index.html",
         results=results,
@@ -94,6 +77,26 @@ def index():
         order=order,
         page=page
     )
+
+def fetch_and_clean_readme(repo, repo_data):
+    try:
+        readme_url = README_URL_TEMPLATE.format(repo["full_name"])
+        readme_resp = requests.get(readme_url)
+        if readme_resp.status_code == 200:
+            raw = readme_resp.text[:1000]  # 只取前 1000 字节
+            html = markdown2.markdown(raw)
+            soup = BeautifulSoup(html, 'html.parser')
+
+                # 清理非法嵌套：移除 p 包裹的 a 或未闭合元素
+            for a in soup.find_all("a"):
+                if a.find_parent("p"):
+                    a.unwrap()
+            clean_html = str(soup)
+            repo_data["readme"] = clean_html
+        else:
+            repo_data["readme"] = ""
+    except:
+        repo_data["readme"] = ""
 
 if __name__ == "__main__":
     app.run(debug=True,port=3001)
