@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 import requests
 import markdown2
 import os
-
+import json
 app = Flask(__name__)
 
 GITHUB_API_URL = "https://api.github.com/search/repositories"
@@ -34,15 +34,29 @@ def index():
     }
 
     headers = {
-        "Accept": "application/vnd.github+json"
+        "Accept": "application/vnd.github+json",
+        "user-agent":"search github app"
     }
     if GITHUB_TOKEN:
         headers["Authorization"] = f"token {GITHUB_TOKEN}"
 
     response = requests.get(GITHUB_API_URL, params=params, headers=headers)
     print("response status code:", response.status_code)
-    items = response.json().get("items", []) if response.status_code == 200 else []
+    print(f"response content size={len(response.text)}")
+    data=response.json()
 
+    total_count=data.get("total_count",0)
+    print(f"total_count repo={total_count}")
+    # total_count=0#for test
+    if total_count>0:
+        items =data.get("items", []) if response.status_code == 200 else []
+    else:
+        print("load offline data")
+        with open("star_over_1w.json","r",encoding="utf-8") as f:
+            strs=f.read()
+            items=json.loads(strs)["items"]
+    
+    print(f"loadded items size={len(items)}")
     # 添加 README 内容（简单处理）
     results = []
     for repo in items:
@@ -53,11 +67,22 @@ def index():
             if readme_resp.status_code == 200:
                 raw = readme_resp.text[:1000]  # 只取前 1000 字节
                 html = markdown2.markdown(raw)
-                repo_data["readme"] = html
+                soup = BeautifulSoup(html, 'html.parser')
+
+                # 清理非法嵌套：移除 p 包裹的 a 或未闭合元素
+                for a in soup.find_all("a"):
+                    if a.find_parent("p"):
+                        a.unwrap()
+                clean_html = str(soup)
+                repo_data["readme"] = clean_html
             else:
                 repo_data["readme"] = ""
         except:
             repo_data["readme"] = ""
+        #处理描述过长问题，处理star数量
+        repo_data["description"]=repo_data["description"][:100]
+        repo_data["stargazers_count"]=f"{repo_data['stargazers_count']:,}"
+        repo_data["forks_count"]=f"{repo_data['forks_count']:,}"
         results.append(repo_data)
 
     return render_template(
@@ -71,4 +96,4 @@ def index():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,port=3001)

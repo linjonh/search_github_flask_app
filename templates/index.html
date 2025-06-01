@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <title>GitHub Repo Search</title>
@@ -8,61 +9,88 @@
         .pagination {
             justify-content: center;
         }
+
         .card-readme {
             max-height: 150px;
             overflow-y: auto;
             font-size: 0.85rem;
         }
+
         .theme-toggle {
             position: absolute;
             top: 1rem;
             right: 1rem;
         }
+
+        .theme-light .card {
+            background-color: #fff;
+            color: #212529;
+        }
+
+        .theme-dark .card {
+            background-color: #1e1e1e;
+            color: #f8f9fa;
+        }
     </style>
 </head>
-<body class="bg-dark text-light">
-<div class="theme-toggle">
-    <button id="toggleTheme" class="btn btn-outline-light btn-sm">切换主题</button>
-</div>
-<div class="container py-5">
-    <h1 class="mb-4">GitHub 仓库搜索</h1>
 
-    <form class="row gy-2 gx-3 align-items-center mb-4" method="get">
-        <div class="col-sm-4">
-            <input type="text" class="form-control" name="q" placeholder="查询条件（如 stars:>1000）" value="{{ query }}">
-        </div>
-        <div class="col-sm-2">
-            <input type="text" class="form-control" name="language" placeholder="语言（如 python）" value="{{ language }}">
-        </div>
-        <div class="col-sm-2">
-            <select class="form-select" name="sort">
-                <option value="stars" {% if sort == 'stars' %}selected{% endif %}>Stars</option>
-                <option value="forks" {% if sort == 'forks' %}selected{% endif %}>Forks</option>
-                <option value="updated" {% if sort == 'updated' %}selected{% endif %}>Updated</option>
-            </select>
-        </div>
-        <div class="col-sm-2">
-            <select class="form-select" name="order">
-                <option value="desc" {% if order == 'desc' %}selected{% endif %}>降序</option>
-                <option value="asc" {% if order == 'asc' %}selected{% endif %}>升序</option>
-            </select>
-        </div>
-        <input type="hidden" name="page" value="{{ page }}">
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">搜索</button>
-        </div>
-    </form>
+<body class="theme-dark">
+    <div class="theme-toggle">
+        <button id="toggleTheme" class="btn btn-outline-light btn-sm">切换主题</button>
+    </div>
+    <div class="container py-5">
+        <h1 class="mb-4">GitHub 仓库搜索</h1>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for repo in results %}
+        <form class="row gy-2 gx-3 align-items-center mb-4" method="get">
+            <div class="col-sm-4">
+                <label for="q">查询条件：</label>
+                <input id="query" type="text" class="form-control" name="q" placeholder="查询条件（如 stars:>1000）"
+                    value="{{ query }}">
+            </div>
+            <div class="col-sm-2">
+                <label for="language">编程语言：</label>
+                <input id="language" type="text" class="form-control" name="language" placeholder="语言（如 python）"
+                    value="{{ language }}">
+            </div>
+            <div class="col-sm-2">
+                <label for="sort">排序：</label>
+                <select id="sort" class="form-select" name="sort">
+                    <option value="stars" {% if sort=='stars' %}selected{% endif %}>Stars</option>
+                    <option value="forks" {% if sort=='forks' %}selected{% endif %}>Forks</option>
+                    <option value="updated" {% if sort=='updated' %}selected{% endif %}>Updated</option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <select class="form-select" name="order">
+                    <option value="desc" {% if order=='desc' %}selected{% endif %}>降序</option>
+                    <option value="asc" {% if order=='asc' %}selected{% endif %}>升序</option>
+                </select>
+            </div>
+            <input type="hidden" name="page" value="{{ page }}">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">搜索</button>
+            </div>
+        </form>
+
+        <div class="row row-cols-1 row-cols-md-1 row-cols-lg-3 g-4">
+            {% for repo in results %}
             <div class="col">
-                <div class="card h-100 shadow-sm text-bg-dark">
+                <div class="card h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="{{ repo.html_url }}" target="_blank" class="text-light">{{ repo.full_name }}</a>
-                        </h5>
-                        <p class="card-text">⭐ {{ repo.stargazers_count }} | 🍴 {{ repo.forks_count }}</p>
-                        <p class="card-text text-muted small">{{ repo.description }}</p>
+                        <div>
+                            <img class="card-avatar w-100" src="{{ repo.owner.avatar_url}}" alt="avatar" />
+                            <h5 class="card-title">
+                                项目名：<a href="{{ repo.html_url }}" target="_blank" class="text-decoration-none">{{
+                                    repo.full_name }}</a>
+                            </h5>
+                        </div>
+                        <p class="card-text">⭐ {{ repo.stargazers_count }}点赞 | 🍴 {{ repo.forks_count }}复刻</p>
+                        <p class="card-text text-muted small">编程语言：{{ repo.language }}</p>
+                        <p class="card-text text-muted small">创建时间：{{ repo.created_at }}</p>
+                        <p class="card-text text-muted small">推送时间：{{ repo.pushed_at }}</p>
+                        <p class="card-text text-muted small">项目网站：<a href="{{ repo.homepage }}" target="_blank"
+                                class="text-decoration-none">{{ repo.homepage }}</a></p>
+                        <p class="card-text text-muted small">项目描述: {{ repo.description }}</p>
                         {% if repo.readme %}
                         <div class="card-readme border-top pt-2 mt-2">
                             <strong>README:</strong>
@@ -72,35 +100,48 @@
                     </div>
                 </div>
             </div>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
 
-    <nav class="mt-5">
-        <ul class="pagination">
-            {% if page > 1 %}
+        <nav class="mt-5">
+            <ul class="pagination">
+                {% if page > 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="?q={{ query }}&language={{ language }}&sort={{ sort }}&order={{ order }}&page={{ page - 1 }}">上一页</a>
+                    <a class="page-link"
+                        href="?q={{ query }}&language={{ language }}&sort={{ sort }}&order={{ order }}&page={{ page - 1 }}">上一页</a>
                 </li>
-            {% endif %}
-            <li class="page-item active">
-                <span class="page-link">第 {{ page }} 页</span>
-            </li>
-            {% if results|length >= 20 %}
+                {% endif %}
+                <li class="page-item active">
+                    <span class="page-link">第 {{ page }} 页</span>
+                </li>
+                {% if results|length >= 20 %}
                 <li class="page-item">
-                    <a class="page-link" href="?q={{ query }}&language={{ language }}&sort={{ sort }}&order={{ order }}&page={{ page + 1 }}">下一页</a>
+                    <a class="page-link"
+                        href="?q={{ query }}&language={{ language }}&sort={{ sort }}&order={{ order }}&page={{ page + 1 }}">下一页</a>
                 </li>
-            {% endif %}
-        </ul>
-    </nav>
-</div>
-<script>
-    document.getElementById('toggleTheme').addEventListener('click', () => {
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <script>
         const html = document.documentElement;
-        const current = html.getAttribute('data-bs-theme');
-        html.setAttribute('data-bs-theme', current === 'dark' ? 'light' : 'dark');
-        document.body.classList.toggle('bg-dark');
-        document.body.classList.toggle('text-light');
-    });
-</script>
+        const body = document.body;
+        const toggleBtn = document.getElementById('toggleTheme');
+
+        toggleBtn.addEventListener('click', () => {
+            const current = html.getAttribute('data-bs-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', newTheme);
+
+            // 切换 body class
+            body.classList.toggle('theme-dark');
+            body.classList.toggle('theme-light');
+
+            // 切换按钮样式
+            toggleBtn.classList.toggle('btn-outline-light');
+            toggleBtn.classList.toggle('btn-outline-dark');
+        });
+    </script>
 </body>
+
 </html>
