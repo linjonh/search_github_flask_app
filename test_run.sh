@@ -1,0 +1,1 @@
+docker run --rm -it   -v "$(pwd):/search_github_app"   -w "/search_github_app"   -p 3001:3001   ubuntu bash -c "apt-get update && apt-get install -y python3 python3-pip && pip3 install --no-cache-dir -r requirements.txt && python3 app.py"
