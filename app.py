@@ -100,4 +100,4 @@ def fetch_and_clean_readme(repo, repo_data):
         repo_data["readme"] = ""
 
 if __name__ == "__main__":
-    app.run(debug=True,host="0.0.0.0",port=3001)
+    app.run(debug=True,host="0.0.0.0",port=3003)
