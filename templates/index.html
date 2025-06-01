@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub Repo Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .pagination {
+            justify-content: center;
+        }
+        .card-readme {
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-dark text-light">
+<div class="theme-toggle">
+    <button id="toggleTheme" class="btn btn-outline-light btn-sm">切换主题</button>
+</div>
+<div class="container py-5">
+    <h1 class="mb-4">GitHub 仓库搜索</h1>
+
+    <form class="row gy-2 gx-3 align-items-center mb-4" method="get">
+        <div class="col-sm-4">
+            <input type="text" class="form-control" name="q" placeholder="查询条件（如 stars:>1000）" value="{{ query }}">
+        </div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" name="language" placeholder="语言（如 python）" value="{{ language }}">
+        </div>
+        <div class="col-sm-2">
+            <select class="form-select" name="sort">
+                <option value="stars" {% if sort == 'stars' %}selected{% endif %}>Stars</option>
+                <option value="forks" {% if sort == 'forks' %}selected{% endif %}>Forks</option>
+                <option value="updated" {% if sort == 'updated' %}selected{% endif %}>Updated</option>
+            </select>
+        </div>
+        <div class="col-sm-2">
+            <select class="form-select" name="order">
+                <option value="desc" {% if order == 'desc' %}selected{% endif %}>降序</option>
+                <option value="asc" {% if order == 'asc' %}selected{% endif %}>升序</option>
+            </select>
+        </div>
+        <input type="hidden" name="page" value="{{ page }}">
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">搜索</button>
+        </div>
+    </form>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for repo in results %}
+            <div class="col">
+                <div class="card h-100 shadow-sm text-bg-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{{ repo.html_url }}" target="_blank" class="text-light">{{ repo.full_name }}</a>
+                        </h5>
+                        <p class="card-text">⭐ {{ repo.stargazers_count }} | 🍴 {{ repo.forks_count }}</p>
+                        <p class="card-text text-muted small">{{ repo.description }}</p>
+                        {% if repo.readme %}
+                        <div class="card-readme border-top pt-2 mt-2">
+                            <strong>README:</strong>
+                            <div>{{ repo.readme|safe }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <nav class="mt-5">
+        <ul class="pagination">
+            {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&language={{ language }}&sort={{ sort }}&order={{ order }}&page={{ page - 1 }}">上一页</a>
+                </li>
+            {% endif %}
+            <li class="page-item active">
+                <span class="page-link">第 {{ page }} 页</span>
+            </li>
+            {% if results|length >= 20 %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&language={{ language }}&sort={{ sort }}&order={{ order }}&page={{ page + 1 }}">下一页</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+<script>
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+        const html = document.documentElement;
+        const current = html.getAttribute('data-bs-theme');
+        html.setAttribute('data-bs-theme', current === 'dark' ? 'light' : 'dark');
+        document.body.classList.toggle('bg-dark');
+        document.body.classList.toggle('text-light');
+    });
+</script>
+</body>
+</html>
