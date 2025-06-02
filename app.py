@@ -78,7 +78,12 @@ def index():
         order=order,
         page=page
     )
-
+@app.route("/ads.txt",methods=["GET"])
+def getads():
+    with open("static/ads.txt","r",encoding="utf-8") as f:
+        return f.read()
+    
+    
 def fetch_and_clean_readme(repo, repo_data):
     try:
         readme_url = README_URL_TEMPLATE.format(repo["full_name"])
