@@ -1,10 +1,36 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="zh_CN" data-bs-theme="dark">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
     <title>GitHub Repo Search</title>
+    <meta property="og:title" content="Github Repo Search">
+    </meta>
+    <meta name="twitter:title" content="Github Repo Search">
+    <meta name="twitter:description" content="Github popular project repository searching and showing as list。">
+    <meta property="og:description" content="Github popular project repository searching and showing as list。">
+    <meta property="og:image"
+        content="https://search.codelin.vip{{ url_for('static',filename='img/github_repo_search.png')}}">
+    <meta name="twitter:image"
+        content="https://search.codelin.vip{{ url_for('static',filename='img/github_repo_search.png')}}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:site_name" content="GitHub Repository Search">
+    <meta property="og:url" content="https://search.codelin.vip">
+    <meta property="og:locale" content="zh_CN">
+    <meta property="og:type" content="website">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MQMEJL9WN1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-MQMEJL9WN1');
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5363852791482518"
+        crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         .pagination {
             justify-content: center;
@@ -16,11 +42,7 @@
             font-size: 0.85rem;
         }
 
-        .theme-toggle {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-        }
+
 
         .theme-light .card {
             background-color: #fff;
@@ -31,29 +53,84 @@
             background-color: #1e1e1e;
             color: #f8f9fa;
         }
+
+        .theme-dark {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .item-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+        @media (min-width: 768px) {
+
+            .container,
+            .container-md,
+            .container-sm {
+                max-width: 80%;
+            }
+        }
+
+        .card {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* .item-repo {
+            min-width: 300px;
+        } */
+        .theme-toggle {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+        }
+
+        .title {
+            position: relative;
+            top: 2rem;
+            left: 11%;
+            bottom: auto;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+        }
     </style>
 </head>
 
 <body class="theme-dark">
+    <h1 class="title mb-4">GitHub 仓库搜索</h1>
     <div class="theme-toggle">
         <button id="toggleTheme" class="btn btn-outline-light btn-sm">切换主题</button>
     </div>
     <div class="container py-5">
-        <h1 class="mb-4">GitHub 仓库搜索</h1>
-
         <form class="row gy-2 gx-3 align-items-center mb-4" method="get">
             <div class="col-sm-4">
-                <label for="q">查询条件：</label>
+                <!-- <label for="q">查询条件：</label> -->
                 <input id="query" type="text" class="form-control" name="q" placeholder="查询条件（如 stars:>1000）"
                     value="{{ query }}">
             </div>
             <div class="col-sm-2">
-                <label for="language">编程语言：</label>
+                <!-- <label for="language">编程语言：</label> -->
                 <input id="language" type="text" class="form-control" name="language" placeholder="语言（如 python）"
                     value="{{ language }}">
             </div>
             <div class="col-sm-2">
-                <label for="sort">排序：</label>
+                <!-- <label for="sort">排序：</label> -->
                 <select id="sort" class="form-select" name="sort">
                     <option value="stars" {% if sort=='stars' %}selected{% endif %}>Stars</option>
                     <option value="forks" {% if sort=='forks' %}selected{% endif %}>Forks</option>
@@ -61,7 +138,7 @@
                 </select>
             </div>
             <div class="col-sm-2">
-                <label for="order">排序顺序：</label>
+                <!-- <label for="order">排序顺序：</label> -->
                 <select class="form-select" name="order" title="排序顺序">
                     <option value="desc" {% if order=='desc' %}selected{% endif %}>降序</option>
                     <option value="asc" {% if order=='asc' %}selected{% endif %}>升序</option>
@@ -73,24 +150,31 @@
             </div>
         </form>
 
-        <div class="row row-cols-1 row-cols-md-1 row-cols-lg-3 g-4">
+        <div class="item-list">
             {% for repo in results %}
-            <div class="col">
+            <div class="item-repo">
                 <div class="card h-100 shadow-sm">
                     <div class="card-body">
                         <div>
                             <a href="{{ repo.html_url }}" target="_blank" class="text-decoration-none">
-                                <img async class="card-avatar w-100" src="{{ repo.owner.avatar_url}}" alt="avatar" />
-                                <h5 class="card-title"> 项目全称：{{ repo.full_name }} </h5>
+                                <img loading="lazy" class="card-avatar w-100" src="{{ repo.owner.avatar_url}}" alt="avatar" />
+                                <h3 class="card-title"><svg aria-hidden="true" height="24" viewBox="0 0 16 16"
+                                        version="1.1" width="24" data-view-component="true"
+                                        class="octicon octicon-repo color-fg-muted mr-2">
+                                        <path
+                                            d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z">
+                                        </path>
+                                    </svg> {{ repo.name }}</h3>
                             </a>
                         </div>
                         <p class="card-text">⭐ {{ repo.stargazers_count }}点赞 | 🍴 {{ repo.forks_count }}复刻</p>
-                        <p class="card-text text-muted small">编程语言：{{ repo.language }}</p>
-                        <p class="card-text text-muted small">创建时间：{{ repo.created_at }}</p>
-                        <p class="card-text text-muted small">推送时间：{{ repo.pushed_at }}</p>
-                        <p class="card-text text-muted small">项目网站：<a href="{{ repo.homepage }}" target="_blank"
+                        <p class="card-text text-muted">项目全称：{{ repo.full_name }}</p>
+                        <p class="card-text text-muted">编程语言：{{ repo.language }}</p>
+                        <p class="card-text text-muted">创建时间：{{ repo.created_at }}</p>
+                        <p class="card-text text-muted">推送时间：{{ repo.pushed_at }}</p>
+                        <p class="card-text text-muted ">项目网站：<a href="{{ repo.homepage }}" target="_blank"
                                 class="text-decoration-none">{{ repo.homepage }}</a></p>
-                        <p class="card-text text-muted small">项目描述: {{ repo.description }}</p>
+                        <p class="card-text text-muted ">项目描述: {{ repo.description }}</p>
                         {% if repo.readme %}
                         <div class="card-readme border-top pt-2 mt-2">
                             <strong>README:</strong>
