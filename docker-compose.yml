@@ -1,0 +1,12 @@
+services:
+  app:
+    image: ghcr.io/linjonh/search_github:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3224:3003"
+    environment:
+    - NODE_ENV=production
+    volumes:
+      - .:/search_github
